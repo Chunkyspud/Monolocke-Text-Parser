@@ -5,58 +5,96 @@ import re
 import string as stringfunc
 import PySimpleGUI as sg
 from json import (load as jsonload, dump as jsondump)
-from os import path
+import os
 import random
-
 # Dictionaries
 # Generation Dictionary
 generations_dict = {
-    "Generation 1": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Nidoran", "Nidorano", "Zubat",
-          "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly", "Rhyhorn", "Horsea",
-          "Porygon", "Dratini", ],
-    "Generation 2": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", ],
-    "Generation 3": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip", "Wurmple",
-          "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal", "Bagon",
-          "Beldum", ],
-    "Generation 4": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip", "Wurmple",
-          "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal", "Bagon",
-          "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", ],
-    "Generation 5": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip", "Wurmple",
-          "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal", "Bagon",
-          "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig", "Oshawott",
-          "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile", "Gothita",
-          "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", ],
-    "Generation 6": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip", "Wurmple",
-          "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal", "Bagon",
-          "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig", "Oshawott",
-          "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile", "Gothita",
-          "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", "Chespin", "Fennekin", "Froakie",
-          "Fletchling", "Scatterbug", "Flabébé", "Honedge", "Goomy", ],
-    "Generation 7": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran", "Cleffa",
-          "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly",
-          "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil", "Totodile",
-          "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip", "Wurmple",
-          "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal", "Bagon",
-          "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig", "Oshawott",
-          "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile", "Gothita",
-          "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", "Chespin", "Fennekin", "Froakie",
-          "Fletchling", "Scatterbug", "Flabébé", "Honedge", "Goomy", "Rowlet", "Litten", "Popplio", "Pikipek",
-          "Grubbin", "Bounsweet", "Jangmo-o", "Cosmog", ],
+    "Generation 1": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Nidoran", "Nidorano",
+                     "Zubat",
+                     "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite", "Gastly", "Rhyhorn",
+                     "Horsea",
+                     "Porygon", "Dratini", ],
+    "Generation 2": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", ],
+    "Generation 3": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip",
+                     "Wurmple",
+                     "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal",
+                     "Bagon",
+                     "Beldum", ],
+    "Generation 4": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip",
+                     "Wurmple",
+                     "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal",
+                     "Bagon",
+                     "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", ],
+    "Generation 5": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip",
+                     "Wurmple",
+                     "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal",
+                     "Bagon",
+                     "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig",
+                     "Oshawott",
+                     "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile",
+                     "Gothita",
+                     "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", ],
+    "Generation 6": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip",
+                     "Wurmple",
+                     "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal",
+                     "Bagon",
+                     "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig",
+                     "Oshawott",
+                     "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile",
+                     "Gothita",
+                     "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", "Chespin", "Fennekin",
+                     "Froakie",
+                     "Fletchling", "Scatterbug", "Flabébé", "Honedge", "Goomy", ],
+    "Generation 7": ["Bulbasaur", "Charmander", "Squirtle", "Caterpie", "Weedle", "Pidgey", "Pichu", "Nidoran",
+                     "Cleffa",
+                     "Igglybuff", "Zubat", "Oddish", "Poliwag", "Abra", "Machop", "Bellsprout", "Geodude", "Magnemite",
+                     "Gastly",
+                     "Rhyhorn", "Happiny", "Horsea", "Elekid", "Magby", "Porygon", "Dratini", "Chikorita", "Cyndaquil",
+                     "Totodile",
+                     "Togepi", "Mareep", "Azurill", "Hoppip", "Swinub", "Larvitar", "Treecko", "Torchic", "Mudkip",
+                     "Wurmple",
+                     "Lotad", "Seedot", "Ralts", "Slakoth", "Whismur", "Aron", "Budew", "Trapinch", "Duskull", "Spheal",
+                     "Bagon",
+                     "Beldum", "Turtwig", "Chimchar", "Piplup", "Starly", "Shinx", "Gible", "Snivy", "Tepig",
+                     "Oshawott",
+                     "Lillipup", "Pidove", "Roggenrola", "Timburr", "Tympole", "Sewaddle", "Venipede", "Sandile",
+                     "Gothita",
+                     "Solosis", "Vanillite", "Klink", "Tynamo", "Litwick", "Axew", "Deino", "Chespin", "Fennekin",
+                     "Froakie",
+                     "Fletchling", "Scatterbug", "Flabébé", "Honedge", "Goomy", "Rowlet", "Litten", "Popplio",
+                     "Pikipek",
+                     "Grubbin", "Bounsweet", "Jangmo-o", "Cosmog", ],
 }
 # Pokemon Types
 type_list = {
@@ -489,7 +527,7 @@ routelist = []
 # Ensure proper type
 
 
-SETTINGS_FILE = path.join(path.dirname(__file__), r'settings_file.cfg')
+SETTINGS_FILE = os.path.join(os.path.dirname(__file__), r'settings_file.cfg')
 DEFAULT_SETTINGS = {'output_log_folder': None, 'default game': 'Red', 'theme': sg.theme(), 'default type': 'Bug'}
 # "Map" from the settings dictionary keys to the window's element keys
 SETTINGS_KEYS_TO_ELEMENT_KEYS = {'output_log_folder': '-OUTPUT FOLDER-', 'default game': '-GAME-', 'theme': '-THEME-',
@@ -552,7 +590,7 @@ def create_settings_window(settings):
 ##################### Main Program Window & Event Loop #####################
 def create_main_window(settings):
     # ------ Menu Definition ------ #
-    menu_def = [['File', ['Settings','Exit']],
+    menu_def = [['File', ['Settings', 'Exit']],
                 ['Help', 'About...'], ]
 
     sg.theme(settings['theme'])
@@ -571,11 +609,14 @@ def create_main_window(settings):
                ],
               [sg.Text('Pokémon Type'), sg.Combo(pkmntype_list, default_value=settings['default type'], key='-PKTYPE-'),
                sg.Text('Game'), sg.Combo(game_list, default_value=settings['default game'], key='-GAME-'),
-               sg.B('Run'), sg.B('Choose Starters'), sg.Combo(generation_list, visible=False, key='-GENLIST-', default_value=''),
+               sg.B('Run'), sg.B('Choose Starters'),
+               sg.Combo(generation_list, visible=False, key='-GENLIST-', default_value=''),
                ],
               [sg.Text('Output Folder'), sg.Input(default_text=settings['output_log_folder'], key='-OUTPUT FOLDER-'),
-               sg.FolderBrowse(target='-OUTPUT FOLDER-'), sg.Text('Starters Output', pad=(60, 0), justification='center')],
-              [sg.Text('Open Log'), sg.Input(key='-LOG-', default_text='Select Log File To Check'), sg.FileBrowse(), sg.Output((35, 1))],
+               sg.FolderBrowse(target='-OUTPUT FOLDER-'),
+               sg.Text('Starters Output', pad=(60, 0), justification='center')],
+              [sg.Text('Open Log'), sg.Input(key='-LOG-', default_text='Select Log File To Check'), sg.FileBrowse(),
+               sg.Output((35, 1))],
 
               ]
 
@@ -643,7 +684,7 @@ def main():
             count = 0
             starter = random.sample(gen_list, k=3)
             while i < 1:
-                if any(mon in starter for mon in pkmn_list) :
+                if any(mon in starter for mon in pkmn_list):
                     i += 1
                     print(f'{starter[0]}, {starter[1]}, {starter[2]}')
                 elif count == 100:
@@ -663,9 +704,13 @@ def main():
             game = values['-GAME-']
             pkmntype = values['-PKTYPE-']
             pkmn_list = type_list[pkmntype.lower()]
-            f = open(
-                "%s\%s-%s.txt" % (settings['output_log_folder'], game, pkmntype),
-                'w')
+            f = 'none'
+            try:
+                filename = "%s/%s/%s-%s.txt" % (values['-OUTPUT FOLDER-'], game, game, pkmntype)
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                f = open(filename, "w+")
+            except PermissionError:
+                sg.popup('Select an Output folder for your logs')
             if game in ["Red", "Blue", "Yellow"]:
                 routelist = routes_rby
             elif game in ["Gold", "Silver", "Crystal"]:
@@ -2920,11 +2965,14 @@ def main():
                             raritynumbers) + '\n')
 
             def parser(parse_routelist, encounterfunc):
-                if values['-LOG-'] == 'Select Log File To Check':
-                    sg.popup('Select a log to Parse')
-                    return
                 window['progbar'].update_bar(0, max=len(routelist) - 1)
-                log = open(values['-LOG-'], encoding="utf8")
+                try:
+                    log = open(values['-LOG-'], encoding="utf8")
+                except FileNotFoundError:
+                    sg.popup('Select a log to Parse')
+                    f.close()
+                    os.remove(filename)
+                    return
                 lines = log.read()
                 log.close()
                 i = 0
@@ -3225,7 +3273,8 @@ def main():
                 parser(routelist, extr_enc_sm)
             elif game in ["Ultra Sun", "Ultra Moon", ]:
                 parser(routelist, extr_enc_sm)
-            f.close()
+            if f != 'none':
+                f.close()
     window.close()
 
 
